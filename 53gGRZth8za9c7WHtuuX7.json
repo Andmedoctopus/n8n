@@ -1,10 +1,10 @@
 [
   {
-    "updatedAt": "2026-02-02T01:50:40.686Z",
+    "updatedAt": "2026-02-02T03:58:11.398Z",
     "createdAt": "2026-02-02T00:46:47.217Z",
     "id": "53gGRZth8za9c7WHtuuX7",
     "name": "backup",
-    "active": false,
+    "active": true,
     "isArchived": false,
     "nodes": [
       {
@@ -18,46 +18,11 @@
         "type": "n8n-nodes-base.scheduleTrigger",
         "typeVersion": 1.3,
         "position": [
-          -368,
+          -656,
           -80
         ],
         "id": "c6f010f5-8e5c-4f02-9594-aee60a5380ef",
         "name": "Schedule Trigger"
-      },
-      {
-        "parameters": {
-          "resource": "file",
-          "owner": {
-            "__rl": true,
-            "value": "Andmedoctopus",
-            "mode": "name"
-          },
-          "repository": {
-            "__rl": true,
-            "value": "n8n",
-            "mode": "list",
-            "cachedResultName": "n8n",
-            "cachedResultUrl": "https://github.com/Andmedoctopus/n8n"
-          },
-          "filePath": "={{ $binary.data.fileName }}",
-          "binaryData": true,
-          "commitMessage": "=Update {{ $('Loop Over Items').item.json.name }}"
-        },
-        "type": "n8n-nodes-base.github",
-        "typeVersion": 1.1,
-        "position": [
-          832,
-          32
-        ],
-        "id": "0729fd71-264c-4c2a-b29c-d7506f911e25",
-        "name": "Create a file",
-        "webhookId": "ad25c6b7-d179-4eba-ba94-42fd7f7a6ace",
-        "credentials": {
-          "githubApi": {
-            "id": "gDQYslqN6sh88zru",
-            "name": "GitHub account"
-          }
-        }
       },
       {
         "parameters": {
@@ -96,24 +61,6 @@
       },
       {
         "parameters": {
-          "operation": "toJson",
-          "binaryPropertyName": "=data",
-          "options": {
-            "format": true,
-            "fileName": "={{ $json.id }}.json"
-          }
-        },
-        "type": "n8n-nodes-base.convertToFile",
-        "typeVersion": 1.1,
-        "position": [
-          576,
-          -80
-        ],
-        "id": "2d340b1b-b0ab-4199-96ee-7c0fa0d208ad",
-        "name": "Convert to File"
-      },
-      {
-        "parameters": {
           "conditions": {
             "options": {
               "caseSensitive": true,
@@ -145,6 +92,214 @@
         ],
         "id": "cf23cb2c-8473-4009-8a50-3a0d7d4fb886",
         "name": "Not archived?"
+      },
+      {
+        "parameters": {
+          "resource": "file",
+          "operation": "edit",
+          "owner": {
+            "__rl": true,
+            "value": "={{ $('Setup github info').first().json.Owner }}",
+            "mode": "name"
+          },
+          "repository": {
+            "__rl": true,
+            "value": "={{ $('Setup github info').first().json.Repository }}",
+            "mode": "name"
+          },
+          "filePath": "={{ $('Convert Workflow to File').first().binary.data.fileName }}",
+          "binaryData": true,
+          "binaryPropertyName": "={{ $('Convert Workflow to File').first().binary.data }}",
+          "commitMessage": "=Update workflow"
+        },
+        "type": "n8n-nodes-base.github",
+        "typeVersion": 1.1,
+        "position": [
+          1248,
+          64
+        ],
+        "id": "8b135883-361e-4a98-99eb-0d3b3bd3829d",
+        "name": "Edit a file",
+        "webhookId": "305ce574-03b9-4125-a19f-2dfd17bbea67",
+        "credentials": {
+          "githubApi": {
+            "id": "gDQYslqN6sh88zru",
+            "name": "GitHub account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          800,
+          -160
+        ],
+        "id": "79831007-be38-44fa-9e25-ef0ba7d143ba",
+        "name": "Merge"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "321138e2-19f0-4aef-9485-997db6e7fe46",
+                "leftValue": "={{ $json.files }}",
+                "rightValue": "={{ $('Convert Workflow to File').first().binary.data.fileName }}",
+                "operator": {
+                  "type": "array",
+                  "operation": "contains",
+                  "rightType": "any"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {
+            "ignoreCase": false
+          }
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          960,
+          -160
+        ],
+        "id": "c6baba8c-c60b-4314-8904-1b27b9b0b05a",
+        "name": "Check if workflow ever backed up"
+      },
+      {
+        "parameters": {
+          "resource": "file",
+          "owner": {
+            "__rl": true,
+            "value": "Andmedoctopus",
+            "mode": "name"
+          },
+          "repository": {
+            "__rl": true,
+            "value": "n8n",
+            "mode": "list",
+            "cachedResultName": "n8n",
+            "cachedResultUrl": "https://github.com/Andmedoctopus/n8n"
+          },
+          "filePath": "={{ $('Convert Workflow to File').first().binary.data.fileName }}",
+          "binaryData": true,
+          "commitMessage": "=Create/Update {{ $('Loop Over Items').item.json.name }} workflow"
+        },
+        "type": "n8n-nodes-base.github",
+        "typeVersion": 1.1,
+        "position": [
+          1248,
+          288
+        ],
+        "id": "0729fd71-264c-4c2a-b29c-d7506f911e25",
+        "name": "Create a file",
+        "webhookId": "ad25c6b7-d179-4eba-ba94-42fd7f7a6ace",
+        "credentials": {
+          "githubApi": {
+            "id": "gDQYslqN6sh88zru",
+            "name": "GitHub account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "6267d659-6fb7-4446-995b-166a6e3ebeab",
+                "name": "Owner",
+                "value": "Andmedoctopus",
+                "type": "string"
+              },
+              {
+                "id": "4da67dee-b2cb-44dd-a058-54f4cea71399",
+                "name": "Repository",
+                "value": "n8n",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -464,
+          -80
+        ],
+        "id": "fab15825-976f-4aaa-ba5b-99ab77fcd1ce",
+        "name": "Setup github info"
+      },
+      {
+        "parameters": {
+          "operation": "toJson",
+          "binaryPropertyName": "=data",
+          "options": {
+            "format": true,
+            "fileName": "={{ $json.id }}.json"
+          }
+        },
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          576,
+          -80
+        ],
+        "id": "2d340b1b-b0ab-4199-96ee-7c0fa0d208ad",
+        "name": "Convert Workflow to File"
+      },
+      {
+        "parameters": {
+          "jsCode": "const files = []\nfor (const item of $input.all()) {\n  files.push(item.json.name)\n}\n\nreturn {files};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          64,
+          -256
+        ],
+        "id": "1d3a0d86-50c5-4035-9cff-9c5d749a42c3",
+        "name": "Convert github file list to simple list"
+      },
+      {
+        "parameters": {
+          "resource": "file",
+          "operation": "list",
+          "owner": {
+            "__rl": true,
+            "mode": "name",
+            "value": "={{ $json.Owner }}"
+          },
+          "repository": {
+            "__rl": true,
+            "mode": "name",
+            "value": "={{ $json.Repository }}"
+          }
+        },
+        "type": "n8n-nodes-base.github",
+        "typeVersion": 1.1,
+        "position": [
+          -160,
+          -256
+        ],
+        "id": "7144d3b3-3ccc-4bc9-a926-f9cdd980579f",
+        "name": "Get list of workflow files in repo",
+        "webhookId": "f75d08dd-312e-4265-9208-c32e93e80dde",
+        "credentials": {
+          "githubApi": {
+            "id": "gDQYslqN6sh88zru",
+            "name": "GitHub account"
+          }
+        }
       }
     ],
     "connections": {
@@ -152,7 +307,7 @@
         "main": [
           [
             {
-              "node": "Get many workflows",
+              "node": "Setup github info",
               "type": "main",
               "index": 0
             }
@@ -182,8 +337,55 @@
           ]
         ]
       },
-      "Convert to File": {
+      "Not archived?": {
         "main": [
+          [
+            {
+              "node": "Convert Workflow to File",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit a file": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Check if workflow ever backed up",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check if workflow ever backed up": {
+        "main": [
+          [
+            {
+              "node": "Edit a file",
+              "type": "main",
+              "index": 0
+            }
+          ],
           [
             {
               "node": "Create a file",
@@ -204,18 +406,49 @@
           ]
         ]
       },
-      "Not archived?": {
+      "Setup github info": {
         "main": [
           [
             {
-              "node": "Convert to File",
+              "node": "Get many workflows",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Get list of workflow files in repo",
               "type": "main",
               "index": 0
             }
-          ],
+          ]
+        ]
+      },
+      "Convert Workflow to File": {
+        "main": [
           [
             {
-              "node": "Loop Over Items",
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Convert github file list to simple list": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get list of workflow files in repo": {
+        "main": [
+          [
+            {
+              "node": "Convert github file list to simple list",
               "type": "main",
               "index": 0
             }
@@ -232,9 +465,9 @@
       "templateCredsSetupCompleted": true
     },
     "pinData": {},
-    "versionId": "d2f61097-aa7e-4467-a86c-8f475d92e9ff",
-    "activeVersionId": null,
-    "triggerCount": 0,
+    "versionId": "73b74cde-4baf-452e-8aeb-479ce79bf7fb",
+    "activeVersionId": "7404ab50-6493-40f5-99c6-760dfaae62a4",
+    "triggerCount": 1,
     "shared": [
       {
         "updatedAt": "2026-02-02T00:46:47.231Z",
@@ -244,7 +477,233 @@
         "projectId": "18oMexXyyY6TCNnP"
       }
     ],
-    "activeVersion": null,
+    "activeVersion": {
+      "updatedAt": "2026-02-02T03:02:26.000Z",
+      "createdAt": "2026-02-02T01:51:54.079Z",
+      "versionId": "7404ab50-6493-40f5-99c6-760dfaae62a4",
+      "workflowId": "53gGRZth8za9c7WHtuuX7",
+      "nodes": [
+        {
+          "parameters": {
+            "rule": {
+              "interval": [
+                {}
+              ]
+            }
+          },
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "typeVersion": 1.3,
+          "position": [
+            -368,
+            -80
+          ],
+          "id": "c6f010f5-8e5c-4f02-9594-aee60a5380ef",
+          "name": "Schedule Trigger"
+        },
+        {
+          "parameters": {
+            "resource": "file",
+            "owner": {
+              "__rl": true,
+              "value": "Andmedoctopus",
+              "mode": "name"
+            },
+            "repository": {
+              "__rl": true,
+              "value": "n8n",
+              "mode": "list",
+              "cachedResultName": "n8n",
+              "cachedResultUrl": "https://github.com/Andmedoctopus/n8n"
+            },
+            "filePath": "={{ $binary.data.fileName }}",
+            "binaryData": true,
+            "commitMessage": "=Create/Update {{ $('Loop Over Items').item.json.name }} workflow"
+          },
+          "type": "n8n-nodes-base.github",
+          "typeVersion": 1.1,
+          "position": [
+            832,
+            32
+          ],
+          "id": "0729fd71-264c-4c2a-b29c-d7506f911e25",
+          "name": "Create a file",
+          "webhookId": "ad25c6b7-d179-4eba-ba94-42fd7f7a6ace",
+          "credentials": {
+            "githubApi": {
+              "id": "gDQYslqN6sh88zru",
+              "name": "GitHub account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "filters": {},
+            "requestOptions": {}
+          },
+          "type": "n8n-nodes-base.n8n",
+          "typeVersion": 1,
+          "position": [
+            -160,
+            -80
+          ],
+          "id": "a5283d99-1997-4eec-8cb2-2416d9359546",
+          "name": "Get many workflows",
+          "credentials": {
+            "n8nApi": {
+              "id": "NdV6swUgV8c5SMzc",
+              "name": "n8n account"
+            }
+          }
+        },
+        {
+          "parameters": {
+            "options": {
+              "reset": false
+            }
+          },
+          "type": "n8n-nodes-base.splitInBatches",
+          "typeVersion": 3,
+          "position": [
+            128,
+            -80
+          ],
+          "id": "4df5529c-b08e-4eaf-a5eb-c28b5cd15699",
+          "name": "Loop Over Items"
+        },
+        {
+          "parameters": {
+            "operation": "toJson",
+            "binaryPropertyName": "=data",
+            "options": {
+              "format": true,
+              "fileName": "={{ $json.id }}.json"
+            }
+          },
+          "type": "n8n-nodes-base.convertToFile",
+          "typeVersion": 1.1,
+          "position": [
+            576,
+            -80
+          ],
+          "id": "2d340b1b-b0ab-4199-96ee-7c0fa0d208ad",
+          "name": "Convert to File"
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "options": {
+                "caseSensitive": true,
+                "leftValue": "",
+                "typeValidation": "strict",
+                "version": 3
+              },
+              "conditions": [
+                {
+                  "id": "98f904b3-d1db-4ad4-bed1-a64d4a27361e",
+                  "leftValue": "={{ $json.isArchived }}",
+                  "rightValue": "",
+                  "operator": {
+                    "type": "boolean",
+                    "operation": "false",
+                    "singleValue": true
+                  }
+                }
+              ],
+              "combinator": "and"
+            },
+            "options": {}
+          },
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.3,
+          "position": [
+            368,
+            -64
+          ],
+          "id": "cf23cb2c-8473-4009-8a50-3a0d7d4fb886",
+          "name": "Not archived?"
+        }
+      ],
+      "connections": {
+        "Schedule Trigger": {
+          "main": [
+            [
+              {
+                "node": "Get many workflows",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Loop Over Items": {
+          "main": [
+            [],
+            [
+              {
+                "node": "Not archived?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Get many workflows": {
+          "main": [
+            [
+              {
+                "node": "Loop Over Items",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Convert to File": {
+          "main": [
+            [
+              {
+                "node": "Create a file",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Create a file": {
+          "main": [
+            [
+              {
+                "node": "Loop Over Items",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Not archived?": {
+          "main": [
+            [
+              {
+                "node": "Convert to File",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Loop Over Items",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "authors": "Andrei Medvedev",
+      "name": "Version 7404ab50",
+      "description": "",
+      "autosaved": true
+    },
     "tags": []
   }
 ]
