@@ -1,6 +1,6 @@
 [
   {
-    "updatedAt": "2026-02-02T00:07:35.586Z",
+    "updatedAt": "2026-02-02T02:58:16.145Z",
     "createdAt": "2026-01-30T04:28:59.776Z",
     "id": "s91lmLHSIEejyPNeWm9kL",
     "name": "Accountant",
@@ -13,14 +13,15 @@
             "message"
           ],
           "additionalFields": {
-            "download": true
+            "download": true,
+            "userIds": "483684106, 459463893"
           }
         },
         "type": "n8n-nodes-base.telegramTrigger",
         "typeVersion": 1.2,
         "position": [
-          0,
-          0
+          112,
+          -80
         ],
         "id": "3d91dd1e-b13e-49c1-b9f5-d92b6cc52971",
         "name": "Telegram Trigger",
@@ -29,65 +30,6 @@
         "executeOnce": false,
         "retryOnFail": false,
         "notesInFlow": false,
-        "credentials": {
-          "telegramApi": {
-            "id": "wO696FcGgg9OFBEP",
-            "name": "Telegram account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "conditions": {
-            "options": {
-              "caseSensitive": true,
-              "leftValue": "",
-              "typeValidation": "loose",
-              "version": 3
-            },
-            "conditions": [
-              {
-                "id": "516ed6aa-06c8-4eef-b1be-a9beb863ae00",
-                "leftValue": "=[483684106, 459463893]",
-                "rightValue": "={{ Number($json.message.from.id) }}",
-                "operator": {
-                  "type": "array",
-                  "operation": "contains",
-                  "rightType": "any"
-                }
-              }
-            ],
-            "combinator": "and"
-          },
-          "looseTypeValidation": true,
-          "options": {
-            "ignoreCase": false
-          }
-        },
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 2.3,
-        "position": [
-          208,
-          0
-        ],
-        "id": "21991809-222d-4c61-b773-f79a9d216845",
-        "name": "Check users whitelist"
-      },
-      {
-        "parameters": {
-          "chatId": "={{ $json.message.chat.id }}",
-          "text": "You don't have permissions to send a message :(",
-          "additionalFields": {}
-        },
-        "type": "n8n-nodes-base.telegram",
-        "typeVersion": 1.2,
-        "position": [
-          416,
-          96
-        ],
-        "id": "b4dd850d-45d5-4936-8f9a-11901ac9b7c0",
-        "name": "Inform no permissions",
-        "webhookId": "a2552aff-d4d9-4c86-910b-c111a9e2fd92",
         "credentials": {
           "telegramApi": {
             "id": "wO696FcGgg9OFBEP",
@@ -156,8 +98,8 @@
         "type": "n8n-nodes-base.switch",
         "typeVersion": 3.4,
         "position": [
-          464,
-          -112
+          432,
+          -80
         ],
         "id": "ca5ceaba-910d-4503-9c3d-235848e1f5ca",
         "name": "Switch"
@@ -179,8 +121,8 @@
         "type": "@n8n/n8n-nodes-langchain.googleGemini",
         "typeVersion": 1.1,
         "position": [
-          688,
-          -192
+          800,
+          -272
         ],
         "id": "2885e124-58a2-48d8-a05a-9961fbd8f30b",
         "name": "Analyze an image",
@@ -201,7 +143,7 @@
         "typeVersion": 1.2,
         "position": [
           688,
-          0
+          112
         ],
         "id": "552cc9cc-a744-4d5e-a989-9073fac7a0fa",
         "name": "Inform no image found",
@@ -215,13 +157,13 @@
       },
       {
         "parameters": {
-          "jsCode": "if ($input.all().length != 1){\n  throw Error(\"Don't know how to process such response\")\n}\nconst modelResponse = $input.all()[0].json.content\nif (modelResponse.parts.length != 1){\n  throw Error(\"Don't know how to process such AI response\")\n}\nlet pureText = modelResponse.parts[0].text\nif (pureText.includes(\"`\")){\n  // AI model ignored no markdown instruction\n  pureText = pureText.replaceAll(\"```json\", \"\").replaceAll(\"```\", \"\")\n}\nconst accountantRecord = JSON.parse(pureText)\nconst output = []\n\n// guess date if model failed to do so\nlet hasIncorrectDate = false\nlet date = accountantRecord.d\nif (accountantRecord.d.startsWith(\"19\")){\n  date = new Date().toISOString().slice(0, 7)\n  hasIncorrectDate = true\n}\n\n\nfor (const record of accountantRecord.i) {\n    const [category, item, quantity, unitPrice, total] = record\n   \n    output.push(\n        {\n            \"hadIncorrectDate\": hasIncorrectDate,\n            \"date\": date,\n            \"merchandise\": accountantRecord.m,\n            \"category\": category,\n            \"item\": item,\n            \"quantity\": quantity,\n            \"unitPrice\": unitPrice,\n            \"total\": total\n        }\n    )\n}\n\nreturn output"
+          "jsCode": "if ($input.all().length != 1){\n  throw Error(\"Don't know how to process such response\")\n}\nconst modelResponse = $input.all()[0].json.content\nif (modelResponse.parts.length != 1){\n  throw Error(\"Don't know how to process such AI response\")\n}\nlet pureText = modelResponse.parts[0].text\nif (pureText.includes(\"`\")){\n  // AI model ignored no markdown instruction\n  pureText = pureText.replaceAll(\"```json\", \"\").replaceAll(\"```\", \"\")\n}\nconst accountantRecord = JSON.parse(pureText)\nconst output = []\n\n// guess date if model failed to do so\nlet hasIncorrectDate = false\nlet date = accountantRecord.d\nif (!accountantRecord.d || accountantRecord.d.startsWith(\"19\")){\n  date = new Date().toISOString().slice(0, 10)\n  hasIncorrectDate = true\n}\n\n\nfor (const record of accountantRecord.i) {\n    const [category, item, quantity, unitPrice, total] = record\n   \n    output.push(\n        {\n            \"hadIncorrectDate\": hasIncorrectDate,\n            \"date\": date,\n            \"merchandise\": accountantRecord.m,\n            \"category\": category || \"unknown\",\n            \"item\": item,\n            \"quantity\": quantity,\n            \"unitPrice\": unitPrice,\n            \"total\": total\n        }\n    )\n}\n\nreturn output"
         },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          896,
-          -192
+          960,
+          -272
         ],
         "id": "dbcd9442-8f37-4d4a-bb31-08bb64ad0bfa",
         "name": "Make response processable"
@@ -333,8 +275,8 @@
         "type": "n8n-nodes-base.googleSheets",
         "typeVersion": 4.7,
         "position": [
-          1152,
-          -80
+          1120,
+          -112
         ],
         "id": "2c98c7c9-1788-488e-b8fe-c96a2f57aaee",
         "name": "Append row in sheet",
@@ -347,28 +289,15 @@
       },
       {
         "parameters": {
-          "jsCode": "const data = $input.all()\nconst hasIncorrectDate = data.some((i) => i.json.hadIncorrectDate)\nconst verificationTotal = data.reduce((partialSum, i) => partialSum + i.json.total, 0.0);\nconsole.log()\n\nreturn {\n  verificatioTotal: Number.parseFloat(verificationTotal).toFixed(2),\n  hasIncorrectDate: hasIncorrectDate,\n}"
-        },
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          1152,
-          -224
-        ],
-        "id": "a66f163c-82cf-4a08-a4e6-e552bba15e9e",
-        "name": "Code in JavaScript"
-      },
-      {
-        "parameters": {
-          "chatId": "={{ $json.chatID }}",
-          "text": "=Please verify total sum: {{ $json.verificatioTotal }}",
+          "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+          "text": "=Please verify total sum: {{ $json.verificatioTotal }}.\nIncorrect date: {{ $json.hasIncorrectDate }}",
           "additionalFields": {}
         },
         "type": "n8n-nodes-base.telegram",
         "typeVersion": 1.2,
         "position": [
-          1728,
-          -288
+          1280,
+          -272
         ],
         "id": "a1aca954-7609-4d35-b3a7-f60e76f44472",
         "name": "Send a text message",
@@ -383,51 +312,38 @@
       },
       {
         "parameters": {
-          "assignments": {
-            "assignments": [
-              {
-                "id": "15357634-6f5a-42da-9f21-189ff34c1776",
-                "name": "chatID",
-                "value": "={{ $json.message.chat.id }}",
-                "type": "string"
-              }
-            ]
-          },
-          "options": {}
+          "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+          "text": "Thanks for sending a shopping check. Processing...",
+          "additionalFields": {}
         },
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
         "position": [
-          688,
-          -336
+          656,
+          -416
         ],
-        "id": "b639db0e-06b7-4046-8ee7-f0527d9505a7",
-        "name": "Remember chat"
-      },
-      {
-        "parameters": {},
-        "type": "n8n-nodes-base.merge",
-        "typeVersion": 3.2,
-        "position": [
-          1376,
-          -320
-        ],
-        "id": "7eec1065-8517-42ea-a384-681400348ae4",
-        "name": "Merge",
-        "alwaysOutputData": false
+        "id": "236bf89d-4519-4a0a-8337-c1d7a0f51d72",
+        "name": "Inform about processing",
+        "webhookId": "0d9e65e7-31da-439d-8625-b3e563a9fcdb",
+        "credentials": {
+          "telegramApi": {
+            "id": "wO696FcGgg9OFBEP",
+            "name": "Telegram account"
+          }
+        }
       },
       {
         "parameters": {
-          "jsCode": "const result = {}\n\nfor (const item of $input.all()) {\n  if (item.json.verificatioTotal){\n    result.verificatioTotal = item.json.verificatioTotal\n  }\n  if (item.json.chatID){\n    result.chatID = item.json.chatID\n  }\n}\n\nreturn result;"
+          "jsCode": "const data = $input.all()\nconst hasIncorrectDate = data.some((i) => i.json.hadIncorrectDate)\nconst verificationTotal = data.reduce((partialSum, i) => partialSum + i.json.total, 0.0);\nconsole.log()\n\nreturn {\n  verificatioTotal: Number.parseFloat(verificationTotal).toFixed(2),\n  hasIncorrectDate: hasIncorrectDate,\n}"
         },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          1552,
-          -288
+          1120,
+          -272
         ],
-        "id": "f8716f6e-950a-41b8-8ab4-2fdf72163add",
-        "name": "Remove ugly structure"
+        "id": "a66f163c-82cf-4a08-a4e6-e552bba15e9e",
+        "name": "Make short report"
       }
     ],
     "connections": {
@@ -435,25 +351,7 @@
         "main": [
           [
             {
-              "node": "Check users whitelist",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Check users whitelist": {
-        "main": [
-          [
-            {
               "node": "Switch",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Inform no permissions",
               "type": "main",
               "index": 0
             }
@@ -464,12 +362,12 @@
         "main": [
           [
             {
-              "node": "Analyze an image",
+              "node": "Inform about processing",
               "type": "main",
               "index": 0
             },
             {
-              "node": "Remember chat",
+              "node": "Analyze an image",
               "type": "main",
               "index": 0
             }
@@ -503,7 +401,7 @@
               "index": 0
             },
             {
-              "node": "Code in JavaScript",
+              "node": "Make short report",
               "type": "main",
               "index": 0
             }
@@ -515,45 +413,17 @@
           []
         ]
       },
-      "Code in JavaScript": {
-        "main": [
-          [
-            {
-              "node": "Merge",
-              "type": "main",
-              "index": 1
-            }
-          ]
-        ]
-      },
       "Send a text message": {
         "main": [
           []
         ]
       },
-      "Remember chat": {
+      "Inform about processing": {
         "main": [
-          [
-            {
-              "node": "Merge",
-              "type": "main",
-              "index": 0
-            }
-          ]
+          []
         ]
       },
-      "Merge": {
-        "main": [
-          [
-            {
-              "node": "Remove ugly structure",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Remove ugly structure": {
+      "Make short report": {
         "main": [
           [
             {
@@ -574,8 +444,8 @@
       "templateCredsSetupCompleted": true
     },
     "pinData": {},
-    "versionId": "1877cf59-c2a7-4953-bacc-bc310e1e376e",
-    "activeVersionId": "1877cf59-c2a7-4953-bacc-bc310e1e376e",
+    "versionId": "774100c3-3b8d-42be-8680-bfe8e5b74ce5",
+    "activeVersionId": "774100c3-3b8d-42be-8680-bfe8e5b74ce5",
     "triggerCount": 1,
     "shared": [
       {
@@ -587,9 +457,9 @@
       }
     ],
     "activeVersion": {
-      "updatedAt": "2026-02-02T00:08:21.000Z",
-      "createdAt": "2026-02-02T00:07:35.591Z",
-      "versionId": "1877cf59-c2a7-4953-bacc-bc310e1e376e",
+      "updatedAt": "2026-02-02T03:01:51.000Z",
+      "createdAt": "2026-02-02T02:58:16.146Z",
+      "versionId": "774100c3-3b8d-42be-8680-bfe8e5b74ce5",
       "workflowId": "s91lmLHSIEejyPNeWm9kL",
       "nodes": [
         {
@@ -598,14 +468,15 @@
               "message"
             ],
             "additionalFields": {
-              "download": true
+              "download": true,
+              "userIds": "483684106, 459463893"
             }
           },
           "type": "n8n-nodes-base.telegramTrigger",
           "typeVersion": 1.2,
           "position": [
-            0,
-            0
+            112,
+            -80
           ],
           "id": "3d91dd1e-b13e-49c1-b9f5-d92b6cc52971",
           "name": "Telegram Trigger",
@@ -614,65 +485,6 @@
           "executeOnce": false,
           "retryOnFail": false,
           "notesInFlow": false,
-          "credentials": {
-            "telegramApi": {
-              "id": "wO696FcGgg9OFBEP",
-              "name": "Telegram account"
-            }
-          }
-        },
-        {
-          "parameters": {
-            "conditions": {
-              "options": {
-                "caseSensitive": true,
-                "leftValue": "",
-                "typeValidation": "loose",
-                "version": 3
-              },
-              "conditions": [
-                {
-                  "id": "516ed6aa-06c8-4eef-b1be-a9beb863ae00",
-                  "leftValue": "=[483684106, 459463893]",
-                  "rightValue": "={{ Number($json.message.from.id) }}",
-                  "operator": {
-                    "type": "array",
-                    "operation": "contains",
-                    "rightType": "any"
-                  }
-                }
-              ],
-              "combinator": "and"
-            },
-            "looseTypeValidation": true,
-            "options": {
-              "ignoreCase": false
-            }
-          },
-          "type": "n8n-nodes-base.if",
-          "typeVersion": 2.3,
-          "position": [
-            208,
-            0
-          ],
-          "id": "21991809-222d-4c61-b773-f79a9d216845",
-          "name": "Check users whitelist"
-        },
-        {
-          "parameters": {
-            "chatId": "={{ $json.message.chat.id }}",
-            "text": "You don't have permissions to send a message :(",
-            "additionalFields": {}
-          },
-          "type": "n8n-nodes-base.telegram",
-          "typeVersion": 1.2,
-          "position": [
-            416,
-            96
-          ],
-          "id": "b4dd850d-45d5-4936-8f9a-11901ac9b7c0",
-          "name": "Inform no permissions",
-          "webhookId": "a2552aff-d4d9-4c86-910b-c111a9e2fd92",
           "credentials": {
             "telegramApi": {
               "id": "wO696FcGgg9OFBEP",
@@ -741,8 +553,8 @@
           "type": "n8n-nodes-base.switch",
           "typeVersion": 3.4,
           "position": [
-            464,
-            -112
+            432,
+            -80
           ],
           "id": "ca5ceaba-910d-4503-9c3d-235848e1f5ca",
           "name": "Switch"
@@ -764,8 +576,8 @@
           "type": "@n8n/n8n-nodes-langchain.googleGemini",
           "typeVersion": 1.1,
           "position": [
-            688,
-            -192
+            800,
+            -272
           ],
           "id": "2885e124-58a2-48d8-a05a-9961fbd8f30b",
           "name": "Analyze an image",
@@ -786,7 +598,7 @@
           "typeVersion": 1.2,
           "position": [
             688,
-            0
+            112
           ],
           "id": "552cc9cc-a744-4d5e-a989-9073fac7a0fa",
           "name": "Inform no image found",
@@ -800,13 +612,13 @@
         },
         {
           "parameters": {
-            "jsCode": "if ($input.all().length != 1){\n  throw Error(\"Don't know how to process such response\")\n}\nconst modelResponse = $input.all()[0].json.content\nif (modelResponse.parts.length != 1){\n  throw Error(\"Don't know how to process such AI response\")\n}\nlet pureText = modelResponse.parts[0].text\nif (pureText.includes(\"`\")){\n  // AI model ignored no markdown instruction\n  pureText = pureText.replaceAll(\"```json\", \"\").replaceAll(\"```\", \"\")\n}\nconst accountantRecord = JSON.parse(pureText)\nconst output = []\n\n// guess date if model failed to do so\nlet hasIncorrectDate = false\nlet date = accountantRecord.d\nif (accountantRecord.d.startsWith(\"19\")){\n  date = new Date().toISOString().slice(0, 7)\n  hasIncorrectDate = true\n}\n\n\nfor (const record of accountantRecord.i) {\n    const [category, item, quantity, unitPrice, total] = record\n   \n    output.push(\n        {\n            \"hadIncorrectDate\": hasIncorrectDate,\n            \"date\": date,\n            \"merchandise\": accountantRecord.m,\n            \"category\": category,\n            \"item\": item,\n            \"quantity\": quantity,\n            \"unitPrice\": unitPrice,\n            \"total\": total\n        }\n    )\n}\n\nreturn output"
+            "jsCode": "if ($input.all().length != 1){\n  throw Error(\"Don't know how to process such response\")\n}\nconst modelResponse = $input.all()[0].json.content\nif (modelResponse.parts.length != 1){\n  throw Error(\"Don't know how to process such AI response\")\n}\nlet pureText = modelResponse.parts[0].text\nif (pureText.includes(\"`\")){\n  // AI model ignored no markdown instruction\n  pureText = pureText.replaceAll(\"```json\", \"\").replaceAll(\"```\", \"\")\n}\nconst accountantRecord = JSON.parse(pureText)\nconst output = []\n\n// guess date if model failed to do so\nlet hasIncorrectDate = false\nlet date = accountantRecord.d\nif (!accountantRecord.d || accountantRecord.d.startsWith(\"19\")){\n  date = new Date().toISOString().slice(0, 10)\n  hasIncorrectDate = true\n}\n\n\nfor (const record of accountantRecord.i) {\n    const [category, item, quantity, unitPrice, total] = record\n   \n    output.push(\n        {\n            \"hadIncorrectDate\": hasIncorrectDate,\n            \"date\": date,\n            \"merchandise\": accountantRecord.m,\n            \"category\": category || \"unknown\",\n            \"item\": item,\n            \"quantity\": quantity,\n            \"unitPrice\": unitPrice,\n            \"total\": total\n        }\n    )\n}\n\nreturn output"
           },
           "type": "n8n-nodes-base.code",
           "typeVersion": 2,
           "position": [
-            896,
-            -192
+            960,
+            -272
           ],
           "id": "dbcd9442-8f37-4d4a-bb31-08bb64ad0bfa",
           "name": "Make response processable"
@@ -918,8 +730,8 @@
           "type": "n8n-nodes-base.googleSheets",
           "typeVersion": 4.7,
           "position": [
-            1152,
-            -80
+            1120,
+            -112
           ],
           "id": "2c98c7c9-1788-488e-b8fe-c96a2f57aaee",
           "name": "Append row in sheet",
@@ -932,28 +744,15 @@
         },
         {
           "parameters": {
-            "jsCode": "const data = $input.all()\nconst hasIncorrectDate = data.some((i) => i.json.hadIncorrectDate)\nconst verificationTotal = data.reduce((partialSum, i) => partialSum + i.json.total, 0.0);\nconsole.log()\n\nreturn {\n  verificatioTotal: Number.parseFloat(verificationTotal).toFixed(2),\n  hasIncorrectDate: hasIncorrectDate,\n}"
-          },
-          "type": "n8n-nodes-base.code",
-          "typeVersion": 2,
-          "position": [
-            1152,
-            -224
-          ],
-          "id": "a66f163c-82cf-4a08-a4e6-e552bba15e9e",
-          "name": "Code in JavaScript"
-        },
-        {
-          "parameters": {
-            "chatId": "={{ $json.chatID }}",
-            "text": "=Please verify total sum: {{ $json.verificatioTotal }}",
+            "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+            "text": "=Please verify total sum: {{ $json.verificatioTotal }}.\nIncorrect date: {{ $json.hasIncorrectDate }}",
             "additionalFields": {}
           },
           "type": "n8n-nodes-base.telegram",
           "typeVersion": 1.2,
           "position": [
-            1728,
-            -288
+            1280,
+            -272
           ],
           "id": "a1aca954-7609-4d35-b3a7-f60e76f44472",
           "name": "Send a text message",
@@ -968,51 +767,38 @@
         },
         {
           "parameters": {
-            "assignments": {
-              "assignments": [
-                {
-                  "id": "15357634-6f5a-42da-9f21-189ff34c1776",
-                  "name": "chatID",
-                  "value": "={{ $json.message.chat.id }}",
-                  "type": "string"
-                }
-              ]
-            },
-            "options": {}
+            "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+            "text": "Thanks for sending a shopping check. Processing...",
+            "additionalFields": {}
           },
-          "type": "n8n-nodes-base.set",
-          "typeVersion": 3.4,
+          "type": "n8n-nodes-base.telegram",
+          "typeVersion": 1.2,
           "position": [
-            688,
-            -336
+            656,
+            -416
           ],
-          "id": "b639db0e-06b7-4046-8ee7-f0527d9505a7",
-          "name": "Remember chat"
-        },
-        {
-          "parameters": {},
-          "type": "n8n-nodes-base.merge",
-          "typeVersion": 3.2,
-          "position": [
-            1376,
-            -320
-          ],
-          "id": "7eec1065-8517-42ea-a384-681400348ae4",
-          "name": "Merge",
-          "alwaysOutputData": false
+          "id": "236bf89d-4519-4a0a-8337-c1d7a0f51d72",
+          "name": "Inform about processing",
+          "webhookId": "0d9e65e7-31da-439d-8625-b3e563a9fcdb",
+          "credentials": {
+            "telegramApi": {
+              "id": "wO696FcGgg9OFBEP",
+              "name": "Telegram account"
+            }
+          }
         },
         {
           "parameters": {
-            "jsCode": "const result = {}\n\nfor (const item of $input.all()) {\n  if (item.json.verificatioTotal){\n    result.verificatioTotal = item.json.verificatioTotal\n  }\n  if (item.json.chatID){\n    result.chatID = item.json.chatID\n  }\n}\n\nreturn result;"
+            "jsCode": "const data = $input.all()\nconst hasIncorrectDate = data.some((i) => i.json.hadIncorrectDate)\nconst verificationTotal = data.reduce((partialSum, i) => partialSum + i.json.total, 0.0);\nconsole.log()\n\nreturn {\n  verificatioTotal: Number.parseFloat(verificationTotal).toFixed(2),\n  hasIncorrectDate: hasIncorrectDate,\n}"
           },
           "type": "n8n-nodes-base.code",
           "typeVersion": 2,
           "position": [
-            1552,
-            -288
+            1120,
+            -272
           ],
-          "id": "f8716f6e-950a-41b8-8ab4-2fdf72163add",
-          "name": "Remove ugly structure"
+          "id": "a66f163c-82cf-4a08-a4e6-e552bba15e9e",
+          "name": "Make short report"
         }
       ],
       "connections": {
@@ -1020,25 +806,7 @@
           "main": [
             [
               {
-                "node": "Check users whitelist",
-                "type": "main",
-                "index": 0
-              }
-            ]
-          ]
-        },
-        "Check users whitelist": {
-          "main": [
-            [
-              {
                 "node": "Switch",
-                "type": "main",
-                "index": 0
-              }
-            ],
-            [
-              {
-                "node": "Inform no permissions",
                 "type": "main",
                 "index": 0
               }
@@ -1049,12 +817,12 @@
           "main": [
             [
               {
-                "node": "Analyze an image",
+                "node": "Inform about processing",
                 "type": "main",
                 "index": 0
               },
               {
-                "node": "Remember chat",
+                "node": "Analyze an image",
                 "type": "main",
                 "index": 0
               }
@@ -1088,7 +856,7 @@
                 "index": 0
               },
               {
-                "node": "Code in JavaScript",
+                "node": "Make short report",
                 "type": "main",
                 "index": 0
               }
@@ -1100,45 +868,17 @@
             []
           ]
         },
-        "Code in JavaScript": {
-          "main": [
-            [
-              {
-                "node": "Merge",
-                "type": "main",
-                "index": 1
-              }
-            ]
-          ]
-        },
         "Send a text message": {
           "main": [
             []
           ]
         },
-        "Remember chat": {
+        "Inform about processing": {
           "main": [
-            [
-              {
-                "node": "Merge",
-                "type": "main",
-                "index": 0
-              }
-            ]
+            []
           ]
         },
-        "Merge": {
-          "main": [
-            [
-              {
-                "node": "Remove ugly structure",
-                "type": "main",
-                "index": 0
-              }
-            ]
-          ]
-        },
-        "Remove ugly structure": {
+        "Make short report": {
           "main": [
             [
               {
@@ -1151,7 +891,7 @@
         }
       },
       "authors": "Andrei Medvedev",
-      "name": "Version 1877cf59",
+      "name": "Version 774100c3",
       "description": "",
       "autosaved": true
     },
