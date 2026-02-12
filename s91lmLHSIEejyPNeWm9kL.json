@@ -1,6 +1,6 @@
 [
   {
-    "updatedAt": "2026-02-02T02:58:16.145Z",
+    "updatedAt": "2026-02-12T12:17:07.813Z",
     "createdAt": "2026-01-30T04:28:59.776Z",
     "id": "s91lmLHSIEejyPNeWm9kL",
     "name": "Accountant",
@@ -296,8 +296,8 @@
         "type": "n8n-nodes-base.telegram",
         "typeVersion": 1.2,
         "position": [
-          1280,
-          -272
+          1488,
+          -176
         ],
         "id": "a1aca954-7609-4d35-b3a7-f60e76f44472",
         "name": "Send a text message",
@@ -344,6 +344,19 @@
         ],
         "id": "a66f163c-82cf-4a08-a4e6-e552bba15e9e",
         "name": "Make short report"
+      },
+      {
+        "parameters": {
+          "mode": "chooseBranch"
+        },
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          1328,
+          -176
+        ],
+        "id": "14916100-f254-40f0-96e5-d71e3c66496d",
+        "name": "Merge"
       }
     ],
     "connections": {
@@ -410,7 +423,13 @@
       },
       "Append row in sheet": {
         "main": [
-          []
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
         ]
       },
       "Send a text message": {
@@ -424,6 +443,17 @@
         ]
       },
       "Make short report": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge": {
         "main": [
           [
             {
@@ -444,8 +474,8 @@
       "templateCredsSetupCompleted": true
     },
     "pinData": {},
-    "versionId": "774100c3-3b8d-42be-8680-bfe8e5b74ce5",
-    "activeVersionId": "774100c3-3b8d-42be-8680-bfe8e5b74ce5",
+    "versionId": "f4a809dc-5300-46b5-ae52-0715a3c2a64e",
+    "activeVersionId": "f4a809dc-5300-46b5-ae52-0715a3c2a64e",
     "triggerCount": 1,
     "shared": [
       {
@@ -457,9 +487,9 @@
       }
     ],
     "activeVersion": {
-      "updatedAt": "2026-02-02T03:01:51.000Z",
-      "createdAt": "2026-02-02T02:58:16.146Z",
-      "versionId": "774100c3-3b8d-42be-8680-bfe8e5b74ce5",
+      "updatedAt": "2026-02-12T12:17:48.000Z",
+      "createdAt": "2026-02-12T12:17:07.815Z",
+      "versionId": "f4a809dc-5300-46b5-ae52-0715a3c2a64e",
       "workflowId": "s91lmLHSIEejyPNeWm9kL",
       "nodes": [
         {
@@ -751,8 +781,8 @@
           "type": "n8n-nodes-base.telegram",
           "typeVersion": 1.2,
           "position": [
-            1280,
-            -272
+            1488,
+            -176
           ],
           "id": "a1aca954-7609-4d35-b3a7-f60e76f44472",
           "name": "Send a text message",
@@ -799,6 +829,19 @@
           ],
           "id": "a66f163c-82cf-4a08-a4e6-e552bba15e9e",
           "name": "Make short report"
+        },
+        {
+          "parameters": {
+            "mode": "chooseBranch"
+          },
+          "type": "n8n-nodes-base.merge",
+          "typeVersion": 3.2,
+          "position": [
+            1328,
+            -176
+          ],
+          "id": "14916100-f254-40f0-96e5-d71e3c66496d",
+          "name": "Merge"
         }
       ],
       "connections": {
@@ -865,7 +908,13 @@
         },
         "Append row in sheet": {
           "main": [
-            []
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
           ]
         },
         "Send a text message": {
@@ -882,6 +931,17 @@
           "main": [
             [
               {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
                 "node": "Send a text message",
                 "type": "main",
                 "index": 0
@@ -891,7 +951,7 @@
         }
       },
       "authors": "Andrei Medvedev",
-      "name": "Version 774100c3",
+      "name": "Version f4a809dc",
       "description": "",
       "autosaved": true
     },
